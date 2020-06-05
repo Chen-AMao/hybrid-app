@@ -1,32 +1,32 @@
 <template>
 <div class="home">
     <div class="home-content">
+        <!-- swiper -->
         <my-swiper :swiperImgs="swiperData.map(item => item.icon)" :height="swiperHeight"></my-swiper>
+        <!-- 520活动 -->
+        <activity>
+            <div class="activity-520">
+                <img v-for="(item, index) in activityDatas"  :key="index" :src="item.icon">
+            </div>
+        </activity>
     </div>
 </div>
 </template>
 
 <script>
 import MySwiper from '@c/swiper/MySwiper.vue'
+import Activity from '@c/currency/Activity.vue'
 
 export default {
   components: {
-    MySwiper
+    MySwiper,
+    Activity
   },
   data: function () {
     return {
-      swiperImgs: [
-        // require('@imgs/swiper-1.jpg'),
-        // require('@imgs/swiper-2.jpg'),
-        // require('@imgs/swiper-3.jpg'),
-        // require('@imgs/swiper-4.jpg'),
-        // require('@imgs/swiper-5.jpg'),
-        // require('@imgs/swiper-6.jpg'),
-        // require('@imgs/swiper-7.jpg'),
-        // require('@imgs/swiper-8.jpg')
-      ],
       swiperData: [],
-      swiperHeight: '184px'
+      swiperHeight: '184px',
+      activityDatas: []
     }
   },
   created: function () {
@@ -36,13 +36,31 @@ export default {
     // 获取数据
     initData: function () {
       // this.$http = axios
-      this.$http.get('swiper')
-        .then(data => {
-          console.log(data)
-          this.swiperData = data.list
-        }).catch(err => {
-          console.log(err)
-        })
+    //   this.$http.get('/swiper')
+    //     .then(data => {
+    //       console.log(data)
+    //       this.swiperData = data.list
+    //     }).catch(err => {
+    //       console.log(err)
+    //     })
+
+      //   // 520活动数据
+      //   this.$http.get('/activitys')
+      //     .then(data => {
+      //       console.log(data)
+      //       this.activityDatas = data.list
+      //     }).catch(err => {
+      //       console.log(err)
+      //     })
+
+      // axios 同时发送多个请求
+      this.$http.all([
+        this.$http.get('/swiper'),
+        this.$http.get('/activitys')
+      ]).then(this.$http.spread((swiperData, activityDatas) => {
+        this.swiperData = swiperData.list
+        this.activityDatas = activityDatas.list
+      }))
     }
   }
 }
@@ -54,9 +72,20 @@ export default {
 .home {
     width: 100%;
     height: 100%;
-
+    background-color: $bgColor;
     &-content {
         height: 100%;
+
+        .activity-520 {
+            margin-top: px2rem(-8);
+            border-top-left-radius: px2rem(8);
+            border-top-right-radius: px2rem(8);
+
+            img {
+                display: inline-block;
+                width: 33.3%;
+            }
+        }
     }
 }
 </style>
