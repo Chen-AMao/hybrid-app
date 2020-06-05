@@ -9,6 +9,8 @@
                 <img v-for="(item, index) in activityDatas"  :key="index" :src="item.icon">
             </div>
         </activity>
+        <!-- 功能选项 -->
+        <mode-options></mode-options>
     </div>
 </div>
 </template>
@@ -16,11 +18,13 @@
 <script>
 import MySwiper from '@c/swiper/MySwiper.vue'
 import Activity from '@c/currency/Activity.vue'
+import ModeOptions from '@c/currency/ModeOptions.vue'
 
 export default {
   components: {
     MySwiper,
-    Activity
+    Activity,
+    ModeOptions
   },
   data: function () {
     return {
