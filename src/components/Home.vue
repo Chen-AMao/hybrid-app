@@ -13,6 +13,14 @@
         <mode-options></mode-options>
         <!-- 秒杀模块 -->
         <seconds :dataSource="secondsData"></seconds>
+        <!-- 拼购节 -->
+        <activity>
+          <div class="activity-pin-gou-jie">
+            <img src="@imgs/haoHuoQiang.gif">
+          </div>
+        </activity>
+        <!-- 商品列表 -->
+        <goods></goods>
     </div>
 </div>
 </template>
@@ -22,13 +30,15 @@ import MySwiper from '@c/swiper/MySwiper.vue'
 import Activity from '@c/currency/Activity.vue'
 import ModeOptions from '@c/currency/ModeOptions.vue'
 import Seconds from '@c/seconds/Seconds.vue'
+import Goods from '@c/goods/Goods.vue'
 
 export default {
   components: {
     MySwiper,
     Activity,
     ModeOptions,
-    Seconds
+    Seconds,
+    Goods
   },
   data: function () {
     return {
@@ -84,6 +94,8 @@ export default {
     width: 100%;
     height: 100%;
     background-color: $bgColor;
+    overflow: hidden;
+    overflow-y: auto;
     &-content {
         height: 100%;
 
@@ -95,6 +107,15 @@ export default {
             img {
                 display: inline-block;
                 width: 33.3%;
+            }
+        }
+
+        .activity-pin-gou-jie {
+            background-color: white;
+            margin-top: $marginSize;
+
+            img {
+                width: 100%;
             }
         }
     }
