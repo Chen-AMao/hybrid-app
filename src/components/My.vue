@@ -1,12 +1,16 @@
 <template>
 <div class="my">
+    <navigation-bar :pageName="'个人中心'" :isShowBack="false"></navigation-bar>
     <p>MY</p>
 </div>
 </template>
 
 <script>
+import NavigationBar from '@c/currency/NavigationBar.vue'
 export default {
-
+  components: {
+    NavigationBar
+  }
 }
 </script>
 

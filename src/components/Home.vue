@@ -1,5 +1,23 @@
 <template>
-<div class="home">
+<div class="home" @scroll="onScrollChange">
+    <navigation-bar :isShowBack="false" :navBarStyle="navBarStyle">
+      <!-- 左侧插槽 -->
+      <template v-slot:nav-left>
+        <img :src="navBarCurrentSlotStyle.leftIcon">
+      </template>
+      <!-- 中间插槽 -->
+      <template v-slot:nav-center>
+        <search
+          :bgColor="navBarCurrentSlotStyle.search.bgColor"
+          :hintColor="navBarCurrentSlotStyle.search.hintColor"
+          :icon="navBarCurrentSlotStyle.search.icon">
+        </search>
+      </template>
+      <!-- 右侧插槽 -->
+      <template v-slot:nav-right>
+        <img :src="navBarCurrentSlotStyle.rightIcon">
+      </template>
+    </navigation-bar>
     <div class="home-content">
         <!-- swiper -->
         <my-swiper :swiperImgs="swiperData.map(item => item.icon)" :height="swiperHeight"></my-swiper>
@@ -31,6 +49,8 @@ import Activity from '@c/currency/Activity.vue'
 import ModeOptions from '@c/currency/ModeOptions.vue'
 import Seconds from '@c/seconds/Seconds.vue'
 import Goods from '@c/goods/Goods.vue'
+import NavigationBar from '@c/currency/NavigationBar.vue'
+import Search from '@c/currency/Search.vue'
 
 export default {
   components: {
@@ -38,17 +58,54 @@ export default {
     Activity,
     ModeOptions,
     Seconds,
-    Goods
+    Goods,
+    NavigationBar,
+    Search
   },
   data: function () {
     return {
       swiperData: [],
       swiperHeight: '184px',
       activityDatas: [],
-      secondsData: [] // 秒杀数据
+      secondsData: [], // 秒杀数据
+      // navBar插槽样式数据：页面未开始滑动样式(默认样式)，页面滑动到锚点之后(高亮样式)
+      navBarSlotStyle: {
+        // 默认样式
+        normal: {
+          leftIcon: require('@imgs/more-white.svg'),
+          search: {
+            bgColor: '#ffffff',
+            hintColor: '#999999',
+            icon: require('@imgs/search.svg')
+          },
+          rightIcon: require('@imgs/message-white.svg')
+        },
+        // 高亮样式
+        highlight: {
+          leftIcon: require('@imgs/more.svg'),
+          search: {
+            bgColor: '#d7d7d7',
+            hintColor: '#ffffff',
+            icon: require('@imgs/search-white.svg')
+          },
+          rightIcon: require('@imgs/message.svg')
+        }
+      },
+      // navBar当前使用的插槽样式
+      navBarCurrentSlotStyle: {},
+      // navBar的定制样式
+      navBarStyle: {
+        position: 'fixed',
+        backgroundColor: ''
+      },
+      // 记录页面滚动值
+      scrollTopValue: -1,
+      // 锚点值
+      ANCHOR_SCROLL_TOP: 160
     }
   },
   created: function () {
+    this.navBarCurrentSlotStyle = this.navBarSlotStyle.normal
     this.initData()
   },
   methods: {
@@ -82,6 +139,22 @@ export default {
         this.activityDatas = activityDatas.list
         this.secondsData = secondsData.list
       }))
+    },
+    /**
+     * 监听页面滚动
+     * 1. 获取当前页面滚动的距离
+     * 2. 计算navBar背景颜色的透明度：当前滚动的距离 / 锚点值 = navBar背景透明度opacity
+     * 3. opacity >= 1，滚动距离超过锚点，变为高亮样式，否则<1，为默认样式
+     */
+    onScrollChange: function ($event) {
+      this.scrollTopValue = $event.target.scrollTop
+      const opacity = this.scrollTopValue / this.ANCHOR_SCROLL_TOP
+      if (opacity >= 1) {
+        this.navBarCurrentSlotStyle = this.navBarSlotStyle.highlight
+      } else {
+        this.navBarCurrentSlotStyle = this.navBarSlotStyle.normal
+      }
+      this.navBarStyle.backgroundColor = 'rgba(255, 255, 255, ' + opacity + ')'
     }
   }
 }
