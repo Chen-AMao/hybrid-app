@@ -12,9 +12,11 @@
         <img class="goods-item-img" :src="item.img" :style="imgStyles[index]">
         <!-- 描述 -->
         <div class="goods-item-desc">
-            <p class="goods-item-desc-name text-line-2">
+            <p class="goods-item-desc-name text-line-2" :class="{'goods-item-desc-name-hint': !item.isHave}">
                 <!-- 是否为直营 -->
+                <direct v-if="item.isDirect"></direct>
                 <!-- 是否有库存 -->
+                <no-have v-if="!item.isHave"></no-have>
                 {{item.name}}
             </p>
             <div class="goods-item-desc-data">
@@ -27,7 +29,14 @@
 </template>
 
 <script>
+import Direct from '@c/goods/Direct.vue'
+import NoHave from '@c/goods/NoHave.vue'
+
 export default {
+  components: {
+    Direct,
+    NoHave
+  },
   data: function () {
     return {
       dataSource: [],
@@ -141,6 +150,10 @@ export default {
             &-name {
                 font-size: $infoSize;
                 line-height: px2rem(18);
+
+                &-hint {
+                    color: $hintColor;
+                }
             }
 
             &-data {
