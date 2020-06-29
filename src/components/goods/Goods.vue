@@ -13,7 +13,7 @@
         2. 生成不同高度的图片，撑起不同高度的item
         3. 计算item的位置，来达到从上到下，从左到右依次排列的目的
     -->
-<div class="goods" :class="layoutClass" :style="{height: goodsViewHeight}">
+<div class="goods" :class="[layoutClass, {'goods-scroll': isScroll}]" :style="{height: goodsViewHeight}">
     <div class="goods-item" :class="layoutItemClass" v-for="(item, index) in dataSource" :key="index"
          ref="goodsItem" :style="goodsItemStyles[index]">
         <!-- 图片 -->
@@ -55,6 +55,13 @@ export default {
     layoutType: {
       type: String,
       default: '1'
+    },
+    /**
+     * 是否允许goods单独滑动
+     */
+    isScroll: {
+      type: Boolean,
+      default: true
     }
   },
   data: function () {
@@ -148,7 +155,9 @@ export default {
         this.goodsItemStyles.push(goodsItemStyle)
       })
       console.log(this.goodsItemStyles)
-      this.goodsViewHeight = (leftHeightTotal > rightHeightTotal ? leftHeightTotal : rightHeightTotal) + 'px'
+      if (!this.isScroll) {
+        this.goodsViewHeight = (leftHeightTotal > rightHeightTotal ? leftHeightTotal : rightHeightTotal) + 'px'
+      }
     },
     /**
      * 设置布局
@@ -196,8 +205,12 @@ export default {
 
 .goods {
     background-color: $bgColor;
-    overflow: hidden;
-    overflow-y: auto;
+
+    &-scroll {
+      overflow: hidden;
+      overflow-y: auto;
+    }
+
     &-item {
         background-color: white;
         padding: $marginSize;
