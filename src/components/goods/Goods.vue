@@ -1,12 +1,20 @@
 <template>
     <!--
+        如何在同一个组件中展示不同的样式:
+        1. html表示整个布局结构,具体样式由css决定
+        2. 每种展示样式对应不同的css,也就是对应不同的类名
+          垂直列表 -> goods-list
+          网格布局 -> goods-grid
+          瀑布流布局 -> goods-waterfall
+        3. 实现不同的样式,本质上就是实现不同的css样式
+
         瀑布流布局
         1. 创建商品列表基本的html和css，让item相对于goods（div）进行排列
         2. 生成不同高度的图片，撑起不同高度的item
         3. 计算item的位置，来达到从上到下，从左到右依次排列的目的
     -->
-<div class="goods goods-waterfall" :style="{height: goodsViewHeight}">
-    <div class="goods-item goods-waterfall-item" v-for="(item, index) in dataSource" :key="index"
+<div class="goods" :class="layoutClass" :style="{height: goodsViewHeight}">
+    <div class="goods-item" :class="layoutItemClass" v-for="(item, index) in dataSource" :key="index"
          ref="goodsItem" :style="goodsItemStyles[index]">
         <!-- 图片 -->
         <img class="goods-item-img" :src="item.img" :style="imgStyles[index]">
@@ -37,6 +45,18 @@ export default {
     Direct,
     NoHave
   },
+  props: {
+    /**
+     * 在父元素中指定展示形式
+     * 1. 垂直列表
+     * 2. 网格布局
+     * 3. 瀑布流布局
+     */
+    layoutType: {
+      type: String,
+      default: '1'
+    }
+  },
   data: function () {
     return {
       dataSource: [],
@@ -51,7 +71,10 @@ export default {
       // item样式集合
       goodsItemStyles: [],
       // goods组件高度
-      goodsViewHeight: 0
+      goodsViewHeight: '100%',
+      // 不同展示形式下的类名
+      layoutClass: 'goods-list',
+      layoutItemClass: 'goods-list-item'
     }
   },
   created: function () {
@@ -66,10 +89,8 @@ export default {
         .then(data => {
           console.log('goods', data.list)
           this.dataSource = data.list
-          this.initImgStyles()
-          this.$nextTick(() => {
-            this.initWaterfall()
-          })
+          // 设置布局
+          this.initLayout()
         })
     },
     /**
@@ -128,6 +149,43 @@ export default {
       })
       console.log(this.goodsItemStyles)
       this.goodsViewHeight = (leftHeightTotal > rightHeightTotal ? leftHeightTotal : rightHeightTotal) + 'px'
+    },
+    /**
+     * 设置布局
+     * 1. 初始化影响到布局的数据源
+     * 2. 为不同的layoutType设置不同的展示类
+     */
+    initLayout: function () {
+      this.goodsViewHeight = '100%'
+      this.goodsItemStyles = []
+      this.imgStyles = []
+      switch (this.layoutType) {
+        // 垂直列表
+        case '1':
+          this.layoutClass = 'goods-list'
+          this.layoutItemClass = 'goods-list-item'
+          break
+        case '2':
+          this.layoutClass = 'goods-grid'
+          this.layoutItemClass = 'goods-grid-item'
+          break
+        case '3':
+          this.layoutClass = 'goods-waterfall'
+          this.layoutItemClass = 'goods-waterfall-item'
+          this.initImgStyles()
+          this.$nextTick(() => {
+            this.initWaterfall()
+          })
+          break
+      }
+    }
+  },
+  watch: {
+    /**
+     * 监听 layoutType
+     */
+    layoutType: function () {
+      this.initLayout()
     }
   }
 }
@@ -138,7 +196,8 @@ export default {
 
 .goods {
     background-color: $bgColor;
-
+    overflow: hidden;
+    overflow-y: auto;
     &-item {
         background-color: white;
         padding: $marginSize;
@@ -178,6 +237,45 @@ export default {
     }
 }
 
+// 垂直列表
+.goods-list {
+  &-item {
+    display: flex;
+    border-bottom: 1px solid $lineColor;
+
+    .goods-item-img {
+      width: px2rem(120);
+      height: px2rem(120);
+    }
+
+    .goods-item-desc {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: $marginSize;
+    }
+  }
+}
+
+// 网格布局
+.goods-grid {
+    padding: $marginSize;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+
+    &-item {
+        width: 49%;
+        border-radius: $radiusSize;
+        margin-bottom: $marginSize;
+
+        .goods-item-img {
+            width: 100%;
+        }
+    }
+}
+
+// 瀑布流
 .goods-waterfall {
     position: relative;
     margin: $marginSize;
